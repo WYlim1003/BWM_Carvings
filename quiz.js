@@ -197,7 +197,7 @@ async function submitQuiz(event) {
 
         // Get total clicks
         const { data: clicksData, error: clicksError } = await supabase
-            .from("clicks")
+            .from("clicks_carvings")
             .select("id", { count: "exact" })
             .eq("action", "quiz_page_open");
 
