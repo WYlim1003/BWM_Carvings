@@ -350,7 +350,15 @@ async function resetQuiz() {
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        await supabase.from("clicks_carvings").insert([{ action: "quiz_page_open" }]);
+        await supabase
+          .from("clicks_carvings")
+          .insert([
+            { 
+              action: "quiz_page_open" // required
+              // created_at will auto-fill with default NOW()
+            }
+          ]);
+        console.log("Quiz page open tracked.");
     } catch (err) {
         console.error("Failed to track quiz page open:", err);
     }
@@ -363,3 +371,4 @@ document.addEventListener("DOMContentLoaded", async () => {
     const retakeBtn = document.getElementById("retake-btn");
     retakeBtn.addEventListener("click", resetQuiz);
 });
+
