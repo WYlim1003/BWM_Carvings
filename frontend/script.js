@@ -460,22 +460,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // Ctrl + Shift + A
         if (isCtrlOrCmd && isShift && key === ADMIN_KEY_SUBMISSIONS) {
             event.preventDefault();
-            const exportBtn = document.getElementById(EXPORT_BUTTON_SUBMISSIONS_ID);
-            if (exportBtn) {
-                exportBtn.classList.toggle('hidden');
-                console.log(exportBtn.classList.contains('hidden') ? "Submissions hidden." : "Submissions revealed!");
-            }
+            const exportBtnSubmissions = document.getElementById(EXPORT_BUTTON_SUBMISSIONS_ID);
+            const exportBtnStats = document.getElementById(EXPORT_BUTTON_STATS_ID);
+            
+            [exportBtnSubmissions, exportBtnStats].forEach(btn => {
+                if (btn) btn.classList.toggle('hidden');
+            });
+
+            console.log(
+                (exportBtnSubmissions?.classList.contains('hidden') ? "Submissions hidden. " : "Submissions revealed. ") +
+                (exportBtnStats?.classList.contains('hidden') ? "Stats hidden." : "Stats revealed!")
+            );
         }
         
-        // Ctrl + Shift + B
-        if (isCtrlOrCmd && isShift && key === ADMIN_KEY_STATS) {
-            event.preventDefault();
-            const exportBtn = document.getElementById(EXPORT_BUTTON_STATS_ID);
-            if (exportBtn) {
-                exportBtn.classList.toggle('hidden');
-                console.log(exportBtn.classList.contains('hidden') ? "Stats hidden." : "Stats revealed!");
-            }
-        }
     });
 });
 
