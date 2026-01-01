@@ -170,50 +170,45 @@ async function submitQuiz(event) {
     const percentage = (score / QUIZ_QUESTIONS.length) * 100;
 
     // Prepare payload
-    const payload = {
-        submissionIndex: submissionCounter++, // increments per submission
-        timestamp: new Date().toISOString(),
-        visitorID,
-        score,
-        percentage,
-        question1: answers.q1.toUpperCase(),
-        question2: answers.q2.toUpperCase(),
-        question3: answers.q3.toUpperCase(),
-        question4: answers.q4.toUpperCase()
-    };
+   const payload = {
+    submissionindex: submissionCounter++, // lowercase
+    timestamp: new Date().toISOString(),
+    visitorid: visitorID,
+    score: score,
+    percentage: percentage,
+    question1: answers.q1.toUpperCase(),
+    question2: answers.q2.toUpperCase(),
+    question3: answers.q3.toUpperCase(),
+    question4: answers.q4.toUpperCase()
+  };
 
     try {
         // 1️⃣ Save submission
         await supabase.from("submissions").insert([payload]);
 
         // 2️⃣ Update quiz stats (optional)
-        const { data: stats } = await supabase
+        const { data: stats, error: statsError } = await supabase
             .from("quiz_stats")
             .select("*")
             .eq("id", 1)
             .single();
 
-        if (error && error.code === "PGRST116") {
-            // Row doesn't exist yet → create it
-            await supabase.from("quiz_stats").insert([{
-                id: 1,
-                total_submissions: 1,
-                sum_of_percentages: percentage,
-                average_percentage: percentage,
-                completion_rate: null, // optional for now
-                updated_at: new Date().toISOString()
-            }]);
+        if (statsError) {
+            console.warn("Stats row missing or table issue:", statsError.message);
+            // Optionally insert first row here
         } else if (stats) {
             const newTotal = stats.total_submissions + 1;
             const newSum = stats.sum_of_percentages + percentage;
             const newAvg = newSum / newTotal;
 
-            await supabase.from("quiz_stats").update({
-                total_submissions: newTotal,
-                sum_of_percentages: newSum,
-                average_percentage: newAvg,
-                updated_at: new Date().toISOString()
-            }).eq("id", 1);
+            await supabase.from("quiz_stats")
+                .update({
+                    total_submissions: newTotal,
+                    sum_of_percentages: newSum,
+                    average_percentage: newAvg,
+                    updated_at: new Date().toISOString()
+                })
+                .eq("id", 1);
         }
 
         console.log("Quiz submitted successfully");
