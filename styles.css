@@ -655,6 +655,9 @@ h2 {
   justify-content: center;
   margin-top: 2rem;
   margin-bottom: 2rem;
+  text-align: center;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
 .btn {
@@ -665,6 +668,12 @@ h2 {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, #e67e22, #d35400);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
 }
 
 .btn-primary {
@@ -687,6 +696,7 @@ h2 {
   background: var(--bg-card);
   color: var(--primary-dark);
   border: 2px solid var(--border-soft);
+
 }
 
 .btn-secondary:hover {
@@ -892,6 +902,8 @@ h2 {
   .hero-text h1 {
     font-size: 1.6rem;
   }
+
+  
 }
 
 /* Responsive */
@@ -910,5 +922,22 @@ h2 {
 
   .btn {
     width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .lang-picker {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .lang-btn {
+    padding: 0.4rem 0.8rem;
+    min-width: 90px;
+    font-size: 0.85rem;
+  }
+
+  .lang-btn i {
+    font-size: 0.8rem;
   }
 }

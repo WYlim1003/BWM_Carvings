@@ -54,6 +54,7 @@ function generateQuizQuestions() {
     applyLanguage(currentLang);
 }
 
+import { supabase } from "./supabase.js";
 
 async function submitQuiz() {
     const visitorID = document.getElementById("user-id-input").value.trim() || `anon-${Math.floor(Math.random() * 1000000)}`;
@@ -87,19 +88,63 @@ async function submitQuiz() {
       percentage,
     };
 
+  // try {
+  //   const response = await fetch("/submit-quiz", {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify(payload)
+  //   });
+  //   const data = await response.json();
+  //   console.log("Saved:", data);
+  //   showResults(score, answers);
+  // } catch (err) {
+  //   console.error("Error submitting quiz:", err);
+  //   alert("Failed to submit quiz. Please try again.");
+  // }
+
   try {
-    const response = await fetch("/submit-quiz", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    const data = await response.json();
-    console.log("Saved:", data);
-    showResults(score, answers);
-  } catch (err) {
-    console.error("Error submitting quiz:", err);
-    alert("Failed to submit quiz. Please try again.");
-  }
+  // 1️⃣ Save submission
+  await supabase.from("submissions").insert([
+    {
+      submission_index: payload.submissionIndex,
+      visitor_id: payload.visitorID,
+      score: payload.score,
+      percentage: payload.percentage,
+      question1: payload.question1,
+      question2: payload.question2,
+      question3: payload.question3,
+      question4: payload.question4,
+      submitted_at: new Date().toISOString()
+    }
+  ]);
+
+  // 2️⃣ Update quiz stats
+  const { data: stats } = await supabase
+    .from("quiz_stats")
+    .select("*")
+    .eq("id", 1)
+    .single();
+
+  const newTotal = stats.total_submissions + 1;
+  const newSum = stats.sum_of_percentages + payload.percentage;
+
+  await supabase
+    .from("quiz_stats")
+    .update({
+      total_submissions: newTotal,
+      sum_of_percentages: newSum,
+      average_percentage: newSum / newTotal,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", 1);
+
+  console.log("Quiz submitted successfully");
+  showResults(score, answers);
+
+} catch (err) {
+  console.error("Error submitting quiz:", err);
+  alert("Failed to submit quiz. Please try again.");
+}
 
 }
 
@@ -139,25 +184,43 @@ function showResults(score, answers) {
   `;
 }
 
+// async function resetQuiz() {
+//   try {
+//         const response = await fetch("/save-click", {
+//             method: "POST",
+//             headers: { "Content-Type": "application/json" }
+//         });
+//         const data = await response.json();
+//         console.log("Retake registered. Total Clicks:", data.totalClicks);
+//     } catch (err) {
+//         console.error("Failed to register retake click:", err);
+//         // We allow the quiz to reset even if the click fails, but log the error
+//     }
+
+//   document.getElementById("results-container").classList.add("hidden");
+//   document.getElementById("quiz-content").classList.remove("hidden");
+
+//   document.querySelectorAll("input[type=radio]").forEach(r => (r.checked = false));
+//   document.getElementById("user-id-input").value = "";
+// }
+
 async function resetQuiz() {
   try {
-        const response = await fetch("/save-click", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" }
-        });
-        const data = await response.json();
-        console.log("Retake registered. Total Clicks:", data.totalClicks);
-    } catch (err) {
-        console.error("Failed to register retake click:", err);
-        // We allow the quiz to reset even if the click fails, but log the error
-    }
+    await supabase.from("clicks").insert([
+      { action: "quiz_retake" }
+    ]);
+    console.log("Retake click saved");
+  } catch (err) {
+    console.error("Failed to register retake click:", err);
+  }
 
   document.getElementById("results-container").classList.add("hidden");
   document.getElementById("quiz-content").classList.remove("hidden");
 
-  document.querySelectorAll("input[type=radio]").forEach(r => (r.checked = false));
+  document.querySelectorAll("input[type=radio]").forEach(r => r.checked = false);
   document.getElementById("user-id-input").value = "";
 }
+  
 
 document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("submit-btn")) {

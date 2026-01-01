@@ -326,6 +326,7 @@ const translations = {
     userIdHelp: '方便工作人员在 Google 表格核对测验结果。'
   },
 };
+import { supabase } from "./supabase.js";
 
 const QUIZ_QUESTIONS = [
     {
@@ -429,50 +430,74 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // 4.2. Quiz Card Click Tracking (Fetch call)
+
+    // 4.2. Quiz Card Click Tracking 
     const quizCard = document.querySelector("a.action-card.quiz");
+
     if (quizCard) {
-        quizCard.addEventListener("click", async(e) => {
-            e.preventDefault(); 
-            
+        quizCard.addEventListener("click", async (e) => {
+            e.preventDefault();
+
             try {
-                const res = await fetch("/save-click", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ clicked: true })
-                });
-                const data = await res.json();
-                console.log("Click saved:", data);
+            await supabase.from("clicks").insert([
+                { action: "quiz_card_clicked" }
+            ]);
+            console.log("Click saved to Supabase");
             } catch (err) {
-                console.error("Error saving click:", err);
+            console.error("Error saving click:", err);
             } finally {
-                window.location.href = quizCard.href; // Navigate regardless of fetch status
+            window.location.href = quizCard.href;
             }
         });
     }
 
+
+    const ADMIN_PASSWORD = "heritage2026";
     // 4.3. Admin Keydown Listener (The shortcut logic)
     document.addEventListener("keydown", (event) => {
         const isCtrlOrCmd = event.ctrlKey || event.metaKey; 
         const isShift = event.shiftKey;
         const key = event.key.toUpperCase();
         
-        // Ctrl + Shift + A
-        if (isCtrlOrCmd && isShift && key === ADMIN_KEY_SUBMISSIONS) {
+        if (isCtrlOrCmd && isShift && key === 'A') {
             event.preventDefault();
-            const exportBtnSubmissions = document.getElementById(EXPORT_BUTTON_SUBMISSIONS_ID);
-            const exportBtnStats = document.getElementById(EXPORT_BUTTON_STATS_ID);
-            
-            [exportBtnSubmissions, exportBtnStats].forEach(btn => {
-                if (btn) btn.classList.toggle('hidden');
-            });
 
-            console.log(
-                (exportBtnSubmissions?.classList.contains('hidden') ? "Submissions hidden. " : "Submissions revealed. ") +
-                (exportBtnStats?.classList.contains('hidden') ? "Stats hidden." : "Stats revealed!")
-            );
+            const userInput = prompt("Please enter the Admin Password to access exports:");
+            
+            if (userInput === ADMIN_PASSWORD) {
+                const submissionsBtn = document.getElementById(EXPORT_BUTTON_SUBMISSIONS_ID);
+                const statsBtn = document.getElementById(EXPORT_BUTTON_STATS_ID);
+                
+                if (submissionsBtn) {
+                    submissionsBtn.classList.remove('hidden');
+                }
+                if (statsBtn) {
+                    statsBtn.classList.remove('hidden');
+                }
+                
+                console.log("Admin buttons revealed.");
+                alert("Admin access granted. Export buttons are now visible.");
+            } else if (userInput !== null) { 
+                alert("Incorrect password.");
+            }
         }
-        
     });
+
+    // 4.3. Simplified Export Handlers
+    const submissionsBtn = document.getElementById(EXPORT_BUTTON_SUBMISSIONS_ID);
+    if (submissionsBtn) {
+        submissionsBtn.addEventListener('click', () => {
+            console.log("Downloading submissions CSV natively...");
+            // We do NOT use e.preventDefault(). 
+            // The browser will follow the link and download the file automatically.
+        });
+    }
+
+    const statsBtn = document.getElementById(EXPORT_BUTTON_STATS_ID);
+    if (statsBtn) {
+        statsBtn.addEventListener('click', () => {
+            console.log("Downloading stats CSV natively...");
+        });
+    }
 });
 

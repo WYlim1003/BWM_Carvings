@@ -1,0 +1,24 @@
+[
+  {
+    "submissionIndex": 0,
+    "timestamp": "2026-01-01T14:59:14.924Z",
+    "visitorID": "anon-713507",
+    "score": 4,
+    "percentage": 100,
+    "question1": "B",
+    "question2": "B",
+    "question3": "A",
+    "question4": "C"
+  },
+  {
+    "submissionIndex": 1,
+    "timestamp": "2026-01-01T15:01:09.579Z",
+    "visitorID": "anon-274486",
+    "score": 4,
+    "percentage": 100,
+    "question1": "B",
+    "question2": "B",
+    "question3": "A",
+    "question4": "C"
+  }
+]
