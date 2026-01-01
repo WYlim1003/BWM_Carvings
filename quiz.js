@@ -144,7 +144,6 @@ function generateQuizQuestions() {
 // }
 
 // }
-let submissionCounter = 0;
 async function submitQuiz(event) {
     event.preventDefault();
 
@@ -171,7 +170,6 @@ async function submitQuiz(event) {
 
     // Prepare payload
    const payload = {
-    submissionindex: submissionCounter++, // lowercase
     timestamp: new Date().toISOString(),
     visitorid: visitorID,
     score: score,
@@ -187,37 +185,45 @@ async function submitQuiz(event) {
         await supabase.from("submissions").insert([payload]);
 
         // 2️⃣ Update quiz stats (optional)
-        // Get total submissions
-        const { data: submissionsData, error: submissionsError } = await supabase
-            .from("submissions")
-            .select("id", { count: "exact" });
+        const { data: statsData, error: statsError } = await supabase
+            .from("quiz_stats")
+            .select("*")
+            .eq("id", 1)
+            .single();
 
-        if (submissionsError) throw submissionsError;
-        const totalSubmissions = submissionsData?.length || 0;
+        if (statsError && statsError.code !== "PGRST116") throw statsError;
 
-        // Get total clicks
-        const { data: clicksData, error: clicksError } = await supabase
-            .from("clicks_carvings")
-            .select("id", { count: "exact" })
-            .eq("action", "quiz_page_open");
+        let newTotal = 1;
+        let newSum = percentage;
+        let newAvg = percentage;
+        let completionRate = 100;
 
-        if (clicksError) throw clicksError;
-        const totalClicks = clicksData?.length || 1; // avoid division by zero
+        // If stats row exists, calculate updated values
+        if (statsData) {
+            newTotal = statsData.total_submissions + 1;
+            newSum = statsData.sum_of_percentages + percentage;
+            newAvg = newSum / newTotal;
 
-        const completionRate = (totalSubmissions / totalClicks) * 100;
+            // Get total clicks to calculate completion rate
+            const { count: totalClicks } = await supabase
+                .from("clicks_carvings")
+                .select("id", { count: "exact" })
+                .eq("action", "quiz_page_open");
 
-        // Update quiz_stats table
+            completionRate = totalClicks > 0 ? (newTotal / totalClicks) * 100 : 100;
+        }
+
+        // Upsert updated stats
         await supabase.from("quiz_stats").upsert([
             {
                 id: 1,
-                total_submissions: totalSubmissions,
-                sum_of_percentages: 0, // calculate as needed
-                average_percentage: 0,  // calculate as needed
+                total_submissions: newTotal,
+                sum_of_percentages: newSum,
+                average_percentage: newAvg,
                 completion_rate: completionRate,
                 updated_at: new Date().toISOString()
             }
         ]);
-
 
         console.log("Quiz submitted successfully");
         showResults(score, answers);
