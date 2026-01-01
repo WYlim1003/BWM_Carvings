@@ -348,6 +348,36 @@ async function resetQuiz() {
 //     }
 // });
 
+// Convert array of objects to CSV string
+function convertToCSV(objArray) {
+    if (!objArray || !objArray.length) return "";
+
+    const keys = Object.keys(objArray[0]);
+    const csvRows = [
+        keys.join(","), // header row
+        ...objArray.map(row => keys.map(k => `"${row[k] ?? ''}"`).join(","))
+    ];
+    return csvRows.join("\n");
+}
+
+// Trigger download of CSV file
+function downloadCSV(filename, csv) {
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    if (link.download !== undefined) { // feature detection
+        const url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = "hidden";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } else {
+        alert("CSV download not supported in this browser.");
+    }
+}
+
+
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         await supabase
