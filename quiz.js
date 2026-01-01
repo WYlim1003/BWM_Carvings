@@ -274,11 +274,14 @@ function showResults(score, answers) {
     answersList.innerHTML = '';
 
     QUIZ_QUESTIONS.forEach((q, index) => {
-        const userAnswer = answers[q.name].toUpperCase();
+        const userAnswer = answers[q.name];
         const correctAnswer = CORRECT_ANSWERS[q.name];
+        const isCorrect = userAnswer.toUpperCase() === correctAnswer.toUpperCase();
         answersList.innerHTML += `
-            <p><strong>Q${index+1}:</strong> Your answer: ${userAnswer} — ${userAnswer === correctAnswer ? "✔ Correct" : `✖ Wrong (Correct: ${correctAnswer})`}</p>
-        `;
+            <p><strong>Q${index+1}:</strong> Your answer: ${userAnswer.toUpperCase()} — 
+              ${isCorrect ? "✔ Correct" : `✖ Wrong (Correct: ${correctAnswer.toUpperCase()})`}
+            </p>
+          `;
     });
 }
 
