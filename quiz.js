@@ -370,5 +370,38 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const retakeBtn = document.getElementById("retake-btn");
     retakeBtn.addEventListener("click", resetQuiz);
+
+    // ===== Export buttons =====
+    const exportSubmissionsBtn = document.getElementById("export-submissions-btn");
+    const exportStatsBtn = document.getElementById("export-stats-btn");
+
+    // Only attach if the buttons exist (they may be hidden)
+    if (exportSubmissionsBtn) {
+        exportSubmissionsBtn.addEventListener("click", async () => {
+            try {
+                const { data, error } = await supabase.from("submissions").select("*");
+                if (error) throw error;
+                const csv = convertToCSV(data);
+                downloadCSV("submissions.csv", csv);
+            } catch (err) {
+                console.error("Error exporting submissions:", err);
+                alert("Failed to export submissions.");
+            }
+        });
+    }
+
+    if (exportStatsBtn) {
+        exportStatsBtn.addEventListener("click", async () => {
+            try {
+                const { data, error } = await supabase.from("quiz_stats").select("*");
+                if (error) throw error;
+                const csv = convertToCSV(data);
+                downloadCSV("quiz_stats.csv", csv);
+            } catch (err) {
+                console.error("Error exporting quiz stats:", err);
+                alert("Failed to export quiz stats.");
+            }
+        });
+    }
 });
 
