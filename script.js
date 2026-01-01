@@ -326,7 +326,7 @@ const translations = {
     userIdHelp: '方便工作人员在 Google 表格核对测验结果。'
   },
 };
-import { supabase } from "./supabase.js";
+//import { supabase } from "./supabase.js";
 
 const QUIZ_QUESTIONS = [
     {

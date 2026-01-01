@@ -54,7 +54,7 @@ function generateQuizQuestions() {
     applyLanguage(currentLang);
 }
 
-import { supabase } from "./supabase.js";
+// import { supabase } from "./supabase.js";
 
 async function submitQuiz() {
     const visitorID = document.getElementById("user-id-input").value.trim() || `anon-${Math.floor(Math.random() * 1000000)}`;
@@ -220,7 +220,7 @@ async function resetQuiz() {
   document.querySelectorAll("input[type=radio]").forEach(r => r.checked = false);
   document.getElementById("user-id-input").value = "";
 }
-  
+
 
 document.addEventListener("DOMContentLoaded", () => {
     if (document.getElementById("submit-btn")) {
