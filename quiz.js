@@ -1,5 +1,19 @@
 import { supabase } from "./supabase.js";
 
+async function trackQuizOpen() {
+    try {
+        await supabase
+            .from("clicks_carvings")
+            .insert([{ action: "quiz_page_open" }]);
+        console.log("Quiz page open tracked.");
+    } catch (err) {
+        console.error("Failed to track quiz page open:", err);
+    }
+}
+
+// Call on page load
+document.addEventListener("DOMContentLoaded", trackQuizOpen);
+
 function generateQuizQuestions() {
     const quizContent = document.getElementById("quiz-content");
     if (!quizContent || typeof QUIZ_QUESTIONS === 'undefined') {
@@ -185,55 +199,50 @@ async function submitQuiz(event) {
         await supabase.from("submissions").insert([payload]);
 
         // 2️⃣ Update quiz stats (optional)
-        const { data: statsData, error: statsError } = await supabase
-            .from("quiz_stats")
-            .select("*")
-            .eq("id", 1)
-            .single();
+         const { data: totalSubmissionsData } = await supabase
+            .from("submissions")
+            .select("*", { count: "exact" });
 
-        if (statsError && statsError.code !== "PGRST116") throw statsError;
+        const totalSubmissions = totalSubmissionsData?.length || 0;
 
-        let newTotal = 1;
-        let newSum = percentage;
-        let newAvg = percentage;
-        let completionRate = 100;
+        const { data: totalClicksData } = await supabase
+            .from("clicks_carvings")
+            .select("*", { count: "exact" })
+            .eq("action", "quiz_page_open");
 
-        // If stats row exists, calculate updated values
-        if (statsData) {
-            newTotal = statsData.total_submissions + 1;
-            newSum = statsData.sum_of_percentages + percentage;
-            newAvg = newSum / newTotal;
+        const totalClicks = totalClicksData?.length || 1; // avoid division by zero
+        const completionRate = (totalSubmissions / totalClicks) * 100;
 
-            // Get total clicks to calculate completion rate
-            const { count: totalClicks } = await supabase
-                .from("clicks_carvings")
-                .select("id", { count: "exact" })
-                .eq("action", "quiz_page_open");
+        // Sum and average of percentages
+        const { data: allPercentages } = await supabase
+            .from("submissions")
+            .select("percentage");
 
-            completionRate = totalClicks > 0 ? (newTotal / totalClicks) * 100 : 100;
-        }
+        const sum_of_percentages = allPercentages
+            .map((row) => row.percentage)
+            .reduce((a, b) => a + b, 0);
+        const average_percentage =
+            allPercentages.length > 0 ? sum_of_percentages / allPercentages.length : 0;
 
-        // Upsert updated stats
+        // Update stats table
         await supabase.from("quiz_stats").upsert([
             {
                 id: 1,
-                total_submissions: newTotal,
-                sum_of_percentages: newSum,
-                average_percentage: newAvg,
+                total_submissions: totalSubmissions,
+                sum_of_percentages,
+                average_percentage,
                 completion_rate: completionRate,
-                updated_at: new Date().toISOString()
-            }
+                updated_at: new Date().toISOString(),
+            },
         ]);
 
         console.log("Quiz submitted successfully");
         showResults(score, answers);
-
     } catch (err) {
         console.error("Error submitting quiz:", err);
         alert("Failed to submit quiz. Please try again.");
     }
 }
-
 // function showResults(score, answers) {
 //   document.getElementById("quiz-content").classList.add("hidden");
 //   document.getElementById("results-container").classList.remove("hidden");
