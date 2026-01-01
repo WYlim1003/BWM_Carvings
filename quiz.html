@@ -9,6 +9,9 @@
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
   />
+  <script type="module" src="supabase.js"></script>
+  <script type="module" src="quiz.js"></script>
+
 </head>
 <body>
 
@@ -48,13 +51,22 @@
           <small data-i18n="userIdHelp"></small>
         </div>
 
-        <div id="quiz-content">
+        <form id="quizForm">
+          <div id="quiz-content"></div>
+
+          <div class="quiz-actions">
+            <button type="submit" class="btn btn-primary" data-i18n="submitQuiz">Submit Quiz</button>
+            <a href="index.html" class="btn btn-secondary center-btn" data-i18n="backToMain">Back to Main</a>
+          </div>
+        </form>
+
+        <!-- <div id="quiz-content">
 
           <div class="quiz-actions">
             <button class="btn btn-primary" id="submit-btn" data-i18n="submitQuiz">Submit Quiz</button>
             <a href="index.html" class="btn btn-secondary center-btn" data-i18n="backToMain">Back to Main</a>
           </div>
-        </div>
+        </div> -->
 
         <div id="results-container" class="results-container hidden">
           <h2 data-i18n="quizResults">Quiz Results</h2>
@@ -98,8 +110,8 @@
     </div>
   </footer>
 
-  <script src="script.js"></script>
-  <script src="quiz.js"></script>
+  <!-- <script src="script.js"></script>
+  <script src="quiz.js"></script> -->
   
 </body>
 </html>
