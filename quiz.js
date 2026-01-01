@@ -312,7 +312,7 @@ function showResults(score, answers) {
 
 async function resetQuiz() {
     try {
-        await supabase.from("clicks").insert([{ action: "quiz_retake" }]);
+        await supabase.from("clicks_carvings").insert([{ action: "quiz_retake" }]);
     } catch (err) {
         console.error("Failed to register retake click:", err);
     }
@@ -335,7 +335,7 @@ async function resetQuiz() {
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        await supabase.from("clicks").insert([{ action: "quiz_page_open" }]);
+        await supabase.from("clicks_carvings").insert([{ action: "quiz_page_open" }]);
     } catch (err) {
         console.error("Failed to track quiz page open:", err);
     }
