@@ -187,29 +187,37 @@ async function submitQuiz(event) {
         await supabase.from("submissions").insert([payload]);
 
         // 2️⃣ Update quiz stats (optional)
-        const { data: stats, error: statsError } = await supabase
-            .from("quiz_stats")
-            .select("*")
-            .eq("id", 1)
-            .single();
+        // Get total submissions
+        const { data: submissionsData, error: submissionsError } = await supabase
+            .from("submissions")
+            .select("id", { count: "exact" });
 
-        if (statsError) {
-            console.warn("Stats row missing or table issue:", statsError.message);
-            // Optionally insert first row here
-        } else if (stats) {
-            const newTotal = stats.total_submissions + 1;
-            const newSum = stats.sum_of_percentages + percentage;
-            const newAvg = newSum / newTotal;
+        if (submissionsError) throw submissionsError;
+        const totalSubmissions = submissionsData?.length || 0;
 
-            await supabase.from("quiz_stats")
-                .update({
-                    total_submissions: newTotal,
-                    sum_of_percentages: newSum,
-                    average_percentage: newAvg,
-                    updated_at: new Date().toISOString()
-                })
-                .eq("id", 1);
-        }
+        // Get total clicks
+        const { data: clicksData, error: clicksError } = await supabase
+            .from("clicks")
+            .select("id", { count: "exact" })
+            .eq("action", "quiz_page_open");
+
+        if (clicksError) throw clicksError;
+        const totalClicks = clicksData?.length || 1; // avoid division by zero
+
+        const completionRate = (totalSubmissions / totalClicks) * 100;
+
+        // Update quiz_stats table
+        await supabase.from("quiz_stats").upsert([
+            {
+                id: 1,
+                total_submissions: totalSubmissions,
+                sum_of_percentages: 0, // calculate as needed
+                average_percentage: 0,  // calculate as needed
+                completion_rate: completionRate,
+                updated_at: new Date().toISOString()
+            }
+        ]);
+
 
         console.log("Quiz submitted successfully");
         showResults(score, answers);
@@ -325,7 +333,13 @@ async function resetQuiz() {
 //     }
 // });
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        await supabase.from("clicks").insert([{ action: "quiz_page_open" }]);
+    } catch (err) {
+        console.error("Failed to track quiz page open:", err);
+    }
+
     generateQuizQuestions();
 
     const quizForm = document.getElementById("quizForm");
