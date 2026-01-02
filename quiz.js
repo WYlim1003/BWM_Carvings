@@ -408,6 +408,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Only attach if the buttons exist (they may be hidden)
     if (exportSubmissionsBtn) {
         exportSubmissionsBtn.addEventListener("click", async () => {
+            e.preventDefault(); 
+            e.stopPropagation();
             try {
                 const { data, error } = await supabase.from("submissions").select("*");
                 if (error) throw error;
@@ -422,6 +424,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (exportStatsBtn) {
         exportStatsBtn.addEventListener("click", async () => {
+            e.preventDefault(); 
+            e.stopPropagation();
             try {
                 const { data, error } = await supabase.from("quiz_stats").select("*");
                 if (error) throw error;
