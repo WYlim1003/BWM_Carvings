@@ -293,7 +293,7 @@ async function submitQuiz(event) {
                 total_submissions: totalSubmissions,
                 sum_of_percentages,
                 average_percentage,
-                // completion_rate: completionRate,
+                completion_rate: completionRate,
                 updated_at: new Date().toISOString()
                 }]);
 
