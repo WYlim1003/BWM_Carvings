@@ -177,7 +177,7 @@ async function submitQuiz(event) {
     // Prepare payload
    const payload = {
     timestamp: new Date().toISOString(),
-    visitorid: visitorID,
+    visitor_id: visitorID,
     score: score,
     percentage: percentage,
     question1: answers.q1.toUpperCase(),
