@@ -227,10 +227,18 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("Failed to track quiz page open:", err);
     }
 
+     // 2. Set language
+    const lang = sessionStorage.getItem('lang') || 'en';
+    applyLanguage(lang);
+
+    // 3. Generate quiz
+    generateQuizQuestions();
+
+    // 4. Language buttons
     document.querySelectorAll('.lang-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            const lang = btn.getAttribute('data-lang');
-            sessionStorage.setItem('lang', lang); // save preference
+            const newLang = btn.getAttribute('data-lang');
+            applyLanguage(newLang);
             generateQuizQuestions(); // regenerate quiz in new language
         });
     });
