@@ -1,19 +1,5 @@
 import { supabase } from "./supabase.js";
 
-// async function trackQuizOpen() {
-//     try {
-//         await supabase
-//             .from("clicks_carvings")
-//             .insert([{ action: "quiz_page_open" }]);
-//         console.log("Quiz page open tracked.");
-//     } catch (err) {
-//         console.error("Failed to track quiz page open:", err);
-//     }
-// }
-
-// Call on page load
-// document.addEventListener("DOMContentLoaded", trackQuizOpen);
-
 function generateQuizQuestions() {
     const quizContent = document.getElementById("quiz-content");
     if (!quizContent || typeof QUIZ_QUESTIONS === 'undefined') {
@@ -58,98 +44,6 @@ function generateQuizQuestions() {
     applyLanguage(currentLang);
 }
 
-
-// async function submitQuiz() {
-//     const visitorID = document.getElementById("user-id-input").value.trim() || `anon-${Math.floor(Math.random() * 1000000)}`;
-
-//     const answers = {
-//       q1: document.querySelector("input[name='q1']:checked")?.value || null,
-//       q2: document.querySelector("input[name='q2']:checked")?.value || null,
-//       q3: document.querySelector("input[name='q3']:checked")?.value || null,
-//       q4: document.querySelector("input[name='q4']:checked")?.value || null
-//     };
-
-//     if (!answers.q1 || !answers.q2 || !answers.q3 || !answers.q4) {
-//       alert("Please answer all questions before submitting.");
-//       return;
-//     }
-
-//     let score = 0;
-//     for (let q in CORRECT_ANSWERS) {
-//       if (answers[q] === CORRECT_ANSWERS[q]) score++;
-//     }
-
-//     const percentage = (score / 4) * 100;
-//     // Send to server
-//     const payload = {
-//       visitorID,
-//       question1: answers.q1.toUpperCase(),
-//       question2: answers.q2.toUpperCase(),
-//       question3: answers.q3.toUpperCase(),
-//       question4: answers.q4.toUpperCase(),
-//       score,
-//       percentage,
-//     };
-
-//   // try {
-//   //   const response = await fetch("/submit-quiz", {
-//   //     method: "POST",
-//   //     headers: { "Content-Type": "application/json" },
-//   //     body: JSON.stringify(payload)
-//   //   });
-//   //   const data = await response.json();
-//   //   console.log("Saved:", data);
-//   //   showResults(score, answers);
-//   // } catch (err) {
-//   //   console.error("Error submitting quiz:", err);
-//   //   alert("Failed to submit quiz. Please try again.");
-//   // }
-
-//   try {
-//   // 1️⃣ Save submission
-//   await supabase.from("submissions").insert([
-//     {
-//       submission_index: payload.submissionIndex,
-//       visitor_id: payload.visitorID,
-//       score: payload.score,
-//       percentage: payload.percentage,
-//       question1: payload.question1,
-//       question2: payload.question2,
-//       question3: payload.question3,
-//       question4: payload.question4,
-//       submitted_at: new Date().toISOString()
-//     }
-//   ]);
-
-//   // 2️⃣ Update quiz stats
-//   const { data: stats } = await supabase
-//     .from("quiz_stats")
-//     .select("*")
-//     .eq("id", 1)
-//     .single();
-
-//   const newTotal = stats.total_submissions + 1;
-//   const newSum = stats.sum_of_percentages + payload.percentage;
-
-//   await supabase
-//     .from("quiz_stats")
-//     .update({
-//       total_submissions: newTotal,
-//       sum_of_percentages: newSum,
-//       average_percentage: newSum / newTotal,
-//       updated_at: new Date().toISOString()
-//     })
-//     .eq("id", 1);
-
-//   console.log("Quiz submitted successfully");
-//   showResults(score, answers);
-
-// } catch (err) {
-//   console.error("Error submitting quiz:", err);
-//   alert("Failed to submit quiz. Please try again.");
-// }
-
-// }
 async function submitQuiz(event) {
     event.preventDefault();
 
@@ -186,64 +80,11 @@ async function submitQuiz(event) {
     question4: answers.q4.toUpperCase()
   };
 
-    // try {
-    //     // 1️⃣ Save submission
-    //     await supabase.from("submissions").insert([payload]);
-
-    //     // 2️⃣ Update quiz stats (optional)
-    //      const { data: totalSubmissionsData } = await supabase
-    //         .from("submissions")
-    //         .select("*", { count: "exact" });
-
-    //     const totalSubmissions = totalSubmissionsData?.length || 0;
-
-    //     const { count: totalClicks, error: clicksError } =
-    //     await supabase
-    //         .from("clicks_carvings")
-    //         .select("*", { count: "exact", head: true })
-    //         .eq("action", "quiz_page_open");
-
-    //     if (clicksError) throw clicksError;
-
-    //     const completionRate =
-    //     totalClicks > 0 ? (totalSubmissions / totalClicks) * 100 : 100;
-
-
-    //     // Sum and average of percentages
-    //     const { data: allPercentages } = await supabase
-    //         .from("submissions")
-    //         .select("percentage");
-
-    //     const sum_of_percentages = allPercentages
-    //         .map(row => Number(row.percentage) || 0)
-    //         .reduce((a, b) => a + b, 0);
-
-    //     const average_percentage =
-    //         allPercentages.length > 0 ? sum_of_percentages / allPercentages.length : 0;
-
-    //     // Update stats table
-    //     await supabase.from("quiz_stats").upsert([
-    //         {
-    //             id: 1,
-    //             total_submissions: totalSubmissions,
-    //             sum_of_percentages,
-    //             average_percentage,
-    //             completion_rate: completionRate,
-    //             updated_at: new Date().toISOString(),
-    //         },
-    //     ]);
-
-    //     console.log("Quiz submitted successfully");
-    //     showResults(score, answers);
-    // } catch (err) {
-    //     console.error("Error submitting quiz:", err);
-    //     alert("Failed to submit quiz. Please try again.");
-    // }
 
         try {
             // 1️⃣ Save submission
             const { error: insertError } = await supabase
-                .from("submissions")
+                .from("submissions_carvings")
                 .insert([payload]);
 
             if (insertError) throw insertError;
@@ -262,7 +103,7 @@ async function submitQuiz(event) {
         }
 
         // 3️⃣ Recalculate stats
-        const { count: totalSubmissions } = await supabase.from("submissions")
+        const { count: totalSubmissions } = await supabase.from("submissions_carvings")
             .select("*", { count: "exact", head: true });
 
         const { count: totalClicks } = await supabase.from("clicks_carvings")
@@ -271,11 +112,11 @@ async function submitQuiz(event) {
 
         const completionRate = totalClicks > 0 ? (totalSubmissions / totalClicks) * 100 : 0;
 
-        const { data: allPercentages } = await supabase.from("submissions").select("percentage");
+        const { data: allPercentages } = await supabase.from("submissions_carvings").select("percentage");
         const sum_of_percentages = allPercentages.map(r => Number(r.percentage) || 0).reduce((a, b) => a + b, 0);
         const average_percentage = totalSubmissions > 0 ? sum_of_percentages / totalSubmissions : 0;
 
-        const { error: statsError } = await supabase.from("quiz_stats").upsert([{
+        const { error: statsError } = await supabase.from("quiz_stats_carvings").upsert([{
             id: 1,
             total_submissions: totalSubmissions,
             sum_of_percentages,
@@ -398,7 +239,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         exportSubmissionsBtn.addEventListener("click", async () => {
     
             try {
-                const { data, error } = await supabase.from("submissions").select("*");
+                const { data, error } = await supabase.from("submissions_carvings").select("*");
                 if (error) throw error;
                 const csv = convertToCSV(data);
                 downloadCSV("submissions.csv", csv);
@@ -413,7 +254,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         exportStatsBtn.addEventListener("click", async () => {
          
             try {
-                const { data, error } = await supabase.from("quiz_stats").select("*");
+                const { data, error } = await supabase.from("quiz_stats_carvings").select("*");
                 if (error) throw error;
                 const csv = convertToCSV(data);
                 downloadCSV("quiz_stats.csv", csv);
