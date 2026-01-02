@@ -7,10 +7,15 @@ function generateQuizQuestions() {
         if (quizContent) quizContent.innerHTML = "Error loading quiz. Data missing.";
         return;
     }
-    let html = '';
 
-    // const currentLang = sessionStorage.getItem('lang') || 'en';
-    // const dict = translations[currentLang];
+    const currentLang = sessionStorage.getItem('lang') || 'en';
+    const dict = translations[currentLang];
+    if (!dict) {
+        console.error(`No translations found for ${currentLang}`);
+        return;
+    }
+
+    let html = '';
 
     QUIZ_QUESTIONS.forEach((q, index) => {
         const questionNumber = index + 1;
@@ -222,7 +227,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("Failed to track quiz page open:", err);
     }
 
-    generateQuizQuestions();
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const lang = btn.getAttribute('data-lang');
+            sessionStorage.setItem('lang', lang); // save preference
+            generateQuizQuestions(); // regenerate quiz in new language
+        });
+    });
 
     const quizForm = document.getElementById("quizForm");
     quizForm.addEventListener("submit", submitQuiz);
