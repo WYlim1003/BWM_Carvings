@@ -12,7 +12,7 @@ import { supabase } from "./supabase.js";
 // }
 
 // Call on page load
-document.addEventListener("DOMContentLoaded", trackQuizOpen);
+// document.addEventListener("DOMContentLoaded", trackQuizOpen);
 
 function generateQuizQuestions() {
     const quizContent = document.getElementById("quiz-content");
