@@ -249,64 +249,49 @@ async function submitQuiz(event) {
             if (insertError) throw insertError;
 
             // 2️⃣ Total submissions
-            const { count: totalSubmissions, error: submissionsError } =
-                await supabase
-                .from("submissions")
-                .select("*", { count: "exact", head: true });
+            const { data: existingClick } = await supabase
+            .from("clicks_carvings")
+            .select("*")
+            .eq("action", "quiz_page_open")
+            .limit(1);
 
-            if (submissionsError) throw submissionsError;
-
-            // 3️⃣ Total clicks
-            const { count: totalClicks, error: clicksError } =
-                await supabase
-                .from("clicks_carvings")
-                .select("*", { count: "exact", head: true })
-                .eq("action", "quiz_page_open");
-
-            if (clicksError) throw clicksError;
-
-            const completionRate =
-                totalClicks > 0 ? (totalSubmissions / totalClicks) * 100 : 0;
-
-            // 4️⃣ Sum & average percentages
-            const { data: allPercentages, error: percentagesError } =
-                await supabase
-                .from("submissions")
-                .select("percentage");
-
-            if (percentagesError) throw percentagesError;
-
-            const sum_of_percentages = allPercentages
-                .map(row => Number(row.percentage) || 0)
-                .reduce((a, b) => a + b, 0);
-
-            const average_percentage =
-                totalSubmissions > 0
-                ? sum_of_percentages / totalSubmissions
-                : 0;
-
-            // 5️⃣ Update stats
-            const { error: statsError } = await supabase
-                .from("quiz_stats")
-                .upsert([{
-                id: 1,
-                total_submissions: totalSubmissions,
-                sum_of_percentages,
-                average_percentage,
-                completion_rate: completionRate,
-                updated_at: new Date().toISOString()
-                }]);
-
-            if (statsError) throw statsError;
-
-            console.log("Quiz submitted successfully ✅");
-            showResults(score, answers);
-
-            } catch (err) {
-            console.error("Error submitting quiz:", err);
-            alert("Failed to submit quiz. Please try again.");
+        if (!existingClick.length) {
+            const { error: clickError } = await supabase.from("clicks_carvings")
+                .insert([{ action: "quiz_page_open" }]);
+            if (clickError) throw clickError;
         }
 
+        // 3️⃣ Recalculate stats
+        const { count: totalSubmissions } = await supabase.from("submissions")
+            .select("*", { count: "exact", head: true });
+
+        const { count: totalClicks } = await supabase.from("clicks_carvings")
+            .select("*", { count: "exact", head: true })
+            .eq("action", "quiz_page_open");
+
+        const completionRate = totalClicks > 0 ? (totalSubmissions / totalClicks) * 100 : 0;
+
+        const { data: allPercentages } = await supabase.from("submissions").select("percentage");
+        const sum_of_percentages = allPercentages.map(r => Number(r.percentage) || 0).reduce((a, b) => a + b, 0);
+        const average_percentage = totalSubmissions > 0 ? sum_of_percentages / totalSubmissions : 0;
+
+        const { error: statsError } = await supabase.from("quiz_stats").upsert([{
+            id: 1,
+            total_submissions: totalSubmissions,
+            sum_of_percentages,
+            average_percentage,
+            completion_rate: completionRate,
+            updated_at: new Date().toISOString()
+        }]);
+        if (statsError) throw statsError;
+
+        console.log("Quiz submitted successfully ✅");
+        showResults(score, answers);
+
+    } catch (err) {
+        console.error("Error submitting quiz:", err);
+        alert("Failed to submit quiz. Please try again.");
+    }
 }
 
 function showResults(score, answers) {
