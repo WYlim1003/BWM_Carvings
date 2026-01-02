@@ -223,7 +223,7 @@ const translations = {
     heroTitle: 'Rumah Penghulu Abu Seman 的马来木雕',
     heroLead1: '马来木雕是马来传统建筑中最重要的元素之一，不仅具有装饰作用，也具备实用功能，例如通风与遮阳。',
     heroLead2: 'Rumah Penghulu Abu Seman 通过丰富的木雕装饰，清楚地展现了这种建筑传统，体现了精湛的马来工艺与深厚的文化价值。',
-    heroLead3: '在这个网站中，您可以通过四大类图案——植物（Flora）、动物（Fauna）、宇宙（Cosmos）与几何（Geometric）——的说明与3D模型，占先了解这些木雕的意义。',
+    heroLead3: '在这个网站中，您可以通过 3D 模型和说明探索四种主要的雕刻类型——植物、动物、宇宙和几何图案，同时还可以分享您的反馈并尝试一个简短的测验。',
     heroNote: '本网站配合放置在 Rumah Penghulu Abu Seman 入口处的二维码使用，方便访客在讲解前先以数位方式探索这些木雕。',
     heroCardTitle: '四大木雕图案类别',
     heroCardItem1: '植物图案 - 花草树叶',
