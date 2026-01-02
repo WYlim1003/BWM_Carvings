@@ -1,15 +1,15 @@
 import { supabase } from "./supabase.js";
 
-async function trackQuizOpen() {
-    try {
-        await supabase
-            .from("clicks_carvings")
-            .insert([{ action: "quiz_page_open" }]);
-        console.log("Quiz page open tracked.");
-    } catch (err) {
-        console.error("Failed to track quiz page open:", err);
-    }
-}
+// async function trackQuizOpen() {
+//     try {
+//         await supabase
+//             .from("clicks_carvings")
+//             .insert([{ action: "quiz_page_open" }]);
+//         console.log("Quiz page open tracked.");
+//     } catch (err) {
+//         console.error("Failed to track quiz page open:", err);
+//     }
+// }
 
 // Call on page load
 document.addEventListener("DOMContentLoaded", trackQuizOpen);
