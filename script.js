@@ -56,7 +56,7 @@ const translations = {
 
     cosmosBreadcrumb: 'Cosmos Motif',
     cosmosTitle: 'Cosmos Carving Motifs',
-    cosmosTagline: 'The sun, moon and stars above the rumah.',
+    cosmosTagline: 'The sun, moon and stars in the sky.',
     cosmosIntro1: 'Cosmic motifs are inspired by celestial elements such as the sun, moon, and stars, symbolising the connection between humans and the universe. These carvings reflect the spiritual beliefs of Malay culture, where the cosmos reminds people of the greatness of the Creator and the order of creation.',
     cosmosIntro2: 'The central position of the ‘punca’ within the design symbolizes radiance, vitality, and enduring qualities in every creation of woodcarving art. The primary significance of the ‘awan larat’ motif is associated with Islamic spirituality, symbolising perpetuity and an endless cycle.',
     cosmosIntro3: 'We include 3D models along with explanations of the cosmic carvings to help visitors visualise how the patterns capture light and shadow.',
@@ -263,7 +263,7 @@ const translations = {
     floraTagline: '环绕房子的花草树叶纹样。',
     floraIntro1: '花卉纹样象征着美丽、和谐以及与大自然的紧密联系，反映了社区对真主创造物和周围环境的深切欣赏。',
     floraIntro2: '在马来建筑中，花卉雕刻常见于像 Rumah Penghulu Abu Seman 这样的传统房屋。它们通常装饰在窗板、门框、通风板、屋山和飞檐板上，用以柔化并丰富坚固木结构的外观。',
-    floraIntro3: '花卉纹样的例子包括 Bunga Kiambang, Bunga Keladi Bunting, Daun Sirih, Bunga Teratai, Pucuk Kacang, Bunga Ketumbit, Daun Ketumbit, and Bunga Pecah Empat, each carrying cultural, symbolic, or medicinal significance.',
+    floraIntro3: '花卉纹样的例子包括 Bunga Kiambang, Bunga Keladi Bunting, Daun Sirih, Bunga Teratai, Pucuk Kacang, Bunga Ketumbit, Daun Ketumbit, 与 Bunga Pecah Empat, 每种雕刻都承载着文化、象征或药用意义。',
 
     faunaBreadcrumb: '动物图案',
     faunaTitle: '动物木雕图案（Fauna）',
@@ -274,7 +274,7 @@ const translations = {
 
     cosmosBreadcrumb: '宇宙图案',
     cosmosTitle: '宇宙木雕图案（Cosmos）',
-    cosmosTagline: '屋顶之上的太阳、月亮与星星。',
+    cosmosTagline: '天空的太阳、月亮与星星。',
     cosmosIntro1: '宇宙纹样的灵感来源于太阳、月亮和星星等天体元素，象征着人类与宇宙的联系。这些雕刻反映了马来文化的精神信仰，宇宙提醒人们创造者的伟大及创造秩序。',
     cosmosIntro2: '在设计中，“punca”的中心位置象征着光辉、活力以及木雕艺术中每一件作品的持久品质。“awan larat”纹样的主要意义与伊斯兰精神相关，象征永恒和无尽的循环。',
     cosmosIntro3: '我们提供了 3D 模型及相关解释，帮助参观者理解这些宇宙纹样如何捕捉光影。',
