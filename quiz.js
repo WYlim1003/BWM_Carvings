@@ -55,14 +55,6 @@ function generateQuizQuestions() {
     });
 
     quizContent.innerHTML = html;
-
-    // const quizActions = quizContent.querySelector('.quiz-actions');
-    // if (quizActions) {
-    //     quizActions.insertAdjacentHTML('beforebegin', html);
-    // } else {
-    //     // Fallback insertion if .quiz-actions isn't found
-    //     quizContent.insertAdjacentHTML('beforeend', html);
-    // }
     applyLanguage(currentLang);
 }
 
@@ -194,90 +186,128 @@ async function submitQuiz(event) {
     question4: answers.q4.toUpperCase()
   };
 
-    try {
-        // 1️⃣ Save submission
-        await supabase.from("submissions").insert([payload]);
+    // try {
+    //     // 1️⃣ Save submission
+    //     await supabase.from("submissions").insert([payload]);
 
-        // 2️⃣ Update quiz stats (optional)
-         const { data: totalSubmissionsData } = await supabase
-            .from("submissions")
-            .select("*", { count: "exact" });
+    //     // 2️⃣ Update quiz stats (optional)
+    //      const { data: totalSubmissionsData } = await supabase
+    //         .from("submissions")
+    //         .select("*", { count: "exact" });
 
-        const totalSubmissions = totalSubmissionsData?.length || 0;
+    //     const totalSubmissions = totalSubmissionsData?.length || 0;
 
-        const { data: totalClicksData } = await supabase
-            .from("clicks_carvings")
-            .select("*", { count: "exact" })
-            .eq("action", "quiz_page_open");
+    //     const { count: totalClicks, error: clicksError } =
+    //     await supabase
+    //         .from("clicks_carvings")
+    //         .select("*", { count: "exact", head: true })
+    //         .eq("action", "quiz_page_open");
 
-        const totalClicks = totalClicksData?.length || 1; // avoid division by zero
-        const completionRate = (totalSubmissions / totalClicks) * 100;
+    //     if (clicksError) throw clicksError;
 
-        // Sum and average of percentages
-        const { data: allPercentages } = await supabase
-            .from("submissions")
-            .select("percentage");
+    //     const completionRate =
+    //     totalClicks > 0 ? (totalSubmissions / totalClicks) * 100 : 100;
 
-        const sum_of_percentages = allPercentages
-            .map((row) => row.percentage)
-            .reduce((a, b) => a + b, 0);
-        const average_percentage =
-            allPercentages.length > 0 ? sum_of_percentages / allPercentages.length : 0;
 
-        // Update stats table
-        await supabase.from("quiz_stats").upsert([
-            {
+    //     // Sum and average of percentages
+    //     const { data: allPercentages } = await supabase
+    //         .from("submissions")
+    //         .select("percentage");
+
+    //     const sum_of_percentages = allPercentages
+    //         .map(row => Number(row.percentage) || 0)
+    //         .reduce((a, b) => a + b, 0);
+
+    //     const average_percentage =
+    //         allPercentages.length > 0 ? sum_of_percentages / allPercentages.length : 0;
+
+    //     // Update stats table
+    //     await supabase.from("quiz_stats").upsert([
+    //         {
+    //             id: 1,
+    //             total_submissions: totalSubmissions,
+    //             sum_of_percentages,
+    //             average_percentage,
+    //             completion_rate: completionRate,
+    //             updated_at: new Date().toISOString(),
+    //         },
+    //     ]);
+
+    //     console.log("Quiz submitted successfully");
+    //     showResults(score, answers);
+    // } catch (err) {
+    //     console.error("Error submitting quiz:", err);
+    //     alert("Failed to submit quiz. Please try again.");
+    // }
+
+        try {
+            // 1️⃣ Save submission
+            const { error: insertError } = await supabase
+                .from("submissions")
+                .insert([payload]);
+
+            if (insertError) throw insertError;
+
+            // 2️⃣ Total submissions
+            const { count: totalSubmissions, error: submissionsError } =
+                await supabase
+                .from("submissions")
+                .select("*", { count: "exact", head: true });
+
+            if (submissionsError) throw submissionsError;
+
+            // 3️⃣ Total clicks
+            const { count: totalClicks, error: clicksError } =
+                await supabase
+                .from("clicks_carvings")
+                .select("*", { count: "exact", head: true })
+                .eq("action", "quiz_page_open");
+
+            if (clicksError) throw clicksError;
+
+            const completionRate =
+                totalClicks > 0 ? (totalSubmissions / totalClicks) * 100 : 0;
+
+            // 4️⃣ Sum & average percentages
+            const { data: allPercentages, error: percentagesError } =
+                await supabase
+                .from("submissions")
+                .select("percentage");
+
+            if (percentagesError) throw percentagesError;
+
+            const sum_of_percentages = allPercentages
+                .map(row => Number(row.percentage) || 0)
+                .reduce((a, b) => a + b, 0);
+
+            const average_percentage =
+                totalSubmissions > 0
+                ? sum_of_percentages / totalSubmissions
+                : 0;
+
+            // 5️⃣ Update stats
+            const { error: statsError } = await supabase
+                .from("quiz_stats")
+                .upsert([{
                 id: 1,
                 total_submissions: totalSubmissions,
                 sum_of_percentages,
                 average_percentage,
                 completion_rate: completionRate,
-                updated_at: new Date().toISOString(),
-            },
-        ]);
+                updated_at: new Date().toISOString()
+                }]);
 
-        console.log("Quiz submitted successfully");
-        showResults(score, answers);
-    } catch (err) {
-        console.error("Error submitting quiz:", err);
-        alert("Failed to submit quiz. Please try again.");
-    }
+            if (statsError) throw statsError;
+
+            console.log("Quiz submitted successfully ✅");
+            showResults(score, answers);
+
+            } catch (err) {
+            console.error("Error submitting quiz:", err);
+            alert("Failed to submit quiz. Please try again.");
+        }
+
 }
-// function showResults(score, answers) {
-//   document.getElementById("quiz-content").classList.add("hidden");
-//   document.getElementById("results-container").classList.remove("hidden");
-
-//   document.getElementById("score-display").textContent = `${score}/4`;
-
-//   const message =
-//     score === 4 ? "Excellent! You got all correct!" :
-//     score === 3 ? "Great job!" :
-//     score === 2 ? "Good try!" :
-//     score === 1 ? "Keep learning!" :
-//     "Try again!";
-
-//   document.getElementById("results-message").textContent = message;
-
-//   const answersList = document.getElementById("answers-list");
-
-//   answersList.innerHTML = `
-//     <p><strong>Q1:</strong> Your answer: ${answers.q1.toUpperCase()} —
-//       ${answers.q1 === CORRECT_ANSWERS.q1 ? "✔ Correct" : "✖ Wrong (Correct: B)"}
-//     </p>
-
-//     <p><strong>Q2:</strong> Your answer: ${answers.q2.toUpperCase()} —
-//       ${answers.q2 === CORRECT_ANSWERS.q2 ? "✔ Correct" : "✖ Wrong (Correct: B)"}
-//     </p>
-
-//     <p><strong>Q3:</strong> Your answer: ${answers.q3.toUpperCase()} —
-//       ${answers.q3 === CORRECT_ANSWERS.q3 ? "✔ Correct" : "✖ Wrong (Correct: A)"}
-//     </p>
-
-//     <p><strong>Q4:</strong> Your answer: ${answers.q4.toUpperCase()} —
-//       ${answers.q4 === CORRECT_ANSWERS.q4 ? "✔ Correct" : "✖ Wrong (Correct: C)"}
-//     </p>
-//   `;
-// }
 
 function showResults(score, answers) {
     document.getElementById("quizForm").classList.add("hidden");
@@ -308,23 +338,6 @@ function showResults(score, answers) {
     });
 }
 
-// async function resetQuiz() {
-//   try {
-//     await supabase.from("clicks").insert([
-//       { action: "quiz_retake" }
-//     ]);
-//     console.log("Retake click saved");
-//   } catch (err) {
-//     console.error("Failed to register retake click:", err);
-//   }
-
-//   document.getElementById("results-container").classList.add("hidden");
-//   document.getElementById("quiz-content").classList.remove("hidden");
-
-//   document.querySelectorAll("input[type=radio]").forEach(r => r.checked = false);
-//   document.getElementById("user-id-input").value = "";
-// }
-
 async function resetQuiz() {
     try {
         await supabase.from("clicks_carvings").insert([{ action: "quiz_retake" }]);
@@ -339,16 +352,6 @@ async function resetQuiz() {
     document.getElementById("user-id-input").value = "";
 }
 
-
-// document.addEventListener("DOMContentLoaded", () => {
-//     if (document.getElementById("submit-btn")) {
-//         generateQuizQuestions();
-//         document.getElementById("submit-btn").addEventListener("click", submitQuiz);
-//         document.getElementById("retake-btn").addEventListener("click", resetQuiz);
-//     }
-// });
-
-// Convert array of objects to CSV string
 function convertToCSV(objArray) {
     if (!objArray || !objArray.length) return "";
 
