@@ -9,8 +9,8 @@ function generateQuizQuestions() {
     }
     let html = '';
 
-    const currentLang = sessionStorage.getItem('lang') || 'en';
-    const dict = translations[currentLang];
+    // const currentLang = sessionStorage.getItem('lang') || 'en';
+    // const dict = translations[currentLang];
 
     QUIZ_QUESTIONS.forEach((q, index) => {
         const questionNumber = index + 1;
@@ -41,7 +41,7 @@ function generateQuizQuestions() {
     });
 
     quizContent.innerHTML = html;
-    applyLanguage(currentLang);
+    // applyLanguage(currentLang);
 }
 
 async function submitQuiz(event) {
